@@ -102,8 +102,8 @@ export class Trajectory {
 export class CelestialObject {
     trajectory: Trajectory
 
-    constructor(traj: Trajectory) {
-        this.trajectory = traj;
+    constructor(trajecture: Trajectory) {
+        this.trajectory = trajecture;
     }
 
     // Generate line segments from points around the trajectory of the orbiting objects.
