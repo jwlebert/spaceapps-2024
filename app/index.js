@@ -1,12 +1,12 @@
 import * as THREE from "three";
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
-import getSun from "./getSun.js";
-import getNebula from "./getNebula.js";
-import getStarfield from "./getStarfield.js";
-import getPlanet from "./getPlanet.js";
-import getAsteroidBelt from "./getAsteroidBelt.js";
-import getElipticLines from "./getElipticLines.js";
+// import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+// import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
+import getSun from "./src/getSun.js";
+import getNebula from "./src/getNebula.js";
+import getStarfield from "./src/getStarfield.js";
+import getPlanet from "./src/getPlanet.js";
+import getAsteroidBelt from "./src/getAsteroidBelt.js";
+import getElipticLines from "./src/getElipticLines.js";
 
 const w = window.innerWidth;
 const h = window.innerHeight;
@@ -25,7 +25,7 @@ document.body.appendChild(renderer.domElement);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.03;
-const useAnimatedCamera = false;
+const useAnimatedCamera = true;
 function initScene(data) {
   const { objs } = data;
   const solarSystem = new THREE.Group();
