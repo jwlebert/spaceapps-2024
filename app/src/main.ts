@@ -8,6 +8,8 @@ import getPlanet from "./getPlanet.js";
 import getAsteroidBelt from "./getAsteroidBelt.js";
 import getElipticLines from "./getElipticLines.js";
 
+import { CelestialObject, Trajectory } from "./CelestialObject.js";
+
 const w = window.innerWidth;
 const h = window.innerHeight;
 const scene = new THREE.Scene();
@@ -18,6 +20,8 @@ renderer.setSize(w, h);
 // renderer.toneMapping = THREE.ACESFilmicToneMapping;
 // renderer.outputColorSpace = THREE.SRGBColorSpace;
 document.body.appendChild(renderer.domElement);
+
+const venus: CelestialObject = new CelestialObject(new Trajectory("Venus",0.72333199,3.39471,54.9,0.00677323,76.7,181.98,0.615));
 
 // const wireMat = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true});
 // scene.overrideMaterial = wireMat;
