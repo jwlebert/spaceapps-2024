@@ -35,6 +35,7 @@ loader.load("/textures/glb/sun.glb", (gltf) => {
 	console.error('An error happened while loading the GLTF model:', error);
 });
 
+
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.03;

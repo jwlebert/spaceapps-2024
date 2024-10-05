@@ -1,6 +1,8 @@
 // from https://github.com/nasa/mission-viz/blob/c6f22701dc5fc3bf25172557a46557b1b5481eec/X3Dom/InnerSolarSystem.html
 
 import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+
 
 interface Position {
     x: number;
@@ -101,9 +103,19 @@ export class Trajectory {
 
 export class CelestialObject {
     trajectory: Trajectory
+    obj: THREE.Object3D
+    scene: THREE.Scene
 
-    constructor(trajecture: Trajectory) {
-        this.trajectory = trajecture;
+    constructor(trajectory: Trajectory, name: string, scene: THREE.Scene, loader: GLTFLoader) {
+        this.trajectory = trajectory;
+        this.obj = new THREE.Object3D();
+        this.scene = scene;
+        const path = "/textures/glb/" + name;
+
+        loader.load(path, (gltf) => {
+            this.obj.add(gltf.scene);
+            scene.add(this.obj);
+        })
     }
 
     // Generate line segments from points around the trajectory of the orbiting objects.
