@@ -1,10 +1,9 @@
 import * as THREE from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+
 import { CelestialObject, Trajectory } from "./CelestialObject";
-
+import data from "./comets.json";
 import planetInfo from "./planetInfo.json";
-
-// import { CelestialObject, Trajectory } from "./CelestialObject.js";
 
 const w = window.innerWidth;
 const h = window.innerHeight;
@@ -16,7 +15,6 @@ camera.position.set(0, 2.5, 4);
 
 // Create a loading manager
 const loadingManager = new THREE.LoadingManager();
-
 const pngLoader = new THREE.TextureLoader(loadingManager);
 
 
@@ -51,6 +49,7 @@ const saturnRingTexture = textureLoader.load('textures/Saturn Ring.png');
 const uranusTexture = textureLoader.load('textures/Uranus.jpg');
 const neptuneTexture = textureLoader.load('textures/Neptune.jpg');
 
+
 // Create a sphere geometry and apply the sun texture
 const sunFactor = 1; // radius of the sun, used to set the scale of other planets
 const geometry = new THREE.SphereGeometry(sunFactor * 0.5, 32, 32);
@@ -69,7 +68,7 @@ const pointLight = new THREE.PointLight(0xffffff, 1, 100);
 pointLight.position.set(5, 5, 5);
 scene.add(pointLight);
 
-// Function to create a planet
+3// Function to create a planet
 function createPlanet(size: number, distance: number, name: string, texture: THREE.Texture) {
 	const geometry = new THREE.SphereGeometry(size, 32, 32);
 	const material = new THREE.MeshStandardMaterial({ map: texture });
@@ -80,6 +79,9 @@ function createPlanet(size: number, distance: number, name: string, texture: THR
 	return planet;
 }
 
+var epoch = new Date('December 9, 2014');  // start the calendar 
+var simSpeed = 0.75;                        // value from the scroll control
+
 const mercuryTrajectory = new Trajectory("Mercury", 0.38709893, 7.00487, 29.124, 0.20563069, 48.33167, 174.796, 0.240846);
 const venusTrajectory = new Trajectory("Venus", 0.72333199, 3.39471, 54.9, 0.00677323, 76.7, 181.98, 0.615);
 const earthTrajectory = new Trajectory("Earth", 1, 0.00005, 102.94719, 0.01671022, 0, 100.47, 1);
@@ -89,26 +91,31 @@ const saturnTrajectory = new Trajectory("Saturn", 9.53707032, 2.48446, 339.392, 
 const uranusTrajectory = new Trajectory("Uranus", 19.19126393, 0.76986, 98.998, 0.04716771, 74.016925, 313.23218, 84.016);
 const neptuneTrajectory = new Trajectory("Neptune", 30.06896348, 1.76917, 276.340, 0.00858587, 131.784057, 304.88003, 164.791);
 
-const mercuryCO = new CelestialObject(mercuryTrajectory, 0.003504 * sunFactor, mercuryTexture);
-const venusCO = new CelestialObject(venusTrajectory, 0.008691 * sunFactor, venusTexture);
-const earthCO = new CelestialObject(earthTrajectory, 0.009149 * sunFactor, earthTexture);
-const marsCO = new CelestialObject(marsTrajectory, 0.004868 * sunFactor, marsTexture);
-const jupiterCO = new CelestialObject(jupiterTrajectory, 0.100398 * sunFactor, jupiterTexture);
-const saturnCO = new CelestialObject(saturnTrajectory, 0.083626 * sunFactor, saturnTexture);
-const uranusCO = new CelestialObject(uranusTrajectory, 0.036422 * sunFactor, uranusTexture);
-const neptuneCO = new CelestialObject(neptuneTrajectory, 0.035359 * sunFactor, neptuneTexture);
+const mercuryCO = new CelestialObject(mercuryTrajectory, bodies, scene, 0.003504 * sunFactor, mercuryTexture);
+const venusCO = new CelestialObject(venusTrajectory, bodies, scene, 0.008691 * sunFactor, venusTexture);
+const earthCO = new CelestialObject(earthTrajectory, bodies, scene, 0.009149 * sunFactor, earthTexture);
+const marsCO = new CelestialObject(marsTrajectory, bodies, scene, 0.004868 * sunFactor, marsTexture);
+const jupiterCO = new CelestialObject(jupiterTrajectory, bodies, scene, 0.100398 * sunFactor, jupiterTexture);
+const saturnCO = new CelestialObject(saturnTrajectory, bodies, scene, 0.083626 * sunFactor, saturnTexture);
+const uranusCO = new CelestialObject(uranusTrajectory, bodies, scene, 0.036422 * sunFactor, uranusTexture);
+const neptuneCO = new CelestialObject(neptuneTrajectory, bodies, scene, 0.035359 * sunFactor, neptuneTexture);
 
-mercuryCO.traceOrbits(scene);
-mercuryCO.createPlanet(scene);
+const bodies: CelestialObject[] = [];
+const cometTexture = textureLoader.load('textures/Asteroid.jpg');
 
-venusCO.traceOrbits(scene);
-venusCO.createPlanet(scene);
+for (const obj of data) {
+	const name = obj.name;
+	const eccentricity = obj.e;
+	const ascNode = obj.node * 0.01745329;
+	const orbInc = obj.i* 0.01745329;
+	const argPeri = obj.w * 0.01745329;
+	const periodYr = obj.per_y;
+	const semiMajAxis = obj.a;
+	const meanAnom = obj.ma;
 
-earthCO.traceOrbits(scene);
-earthCO.createPlanet(scene);
-
-marsCO.traceOrbits(scene);
-marsCO.createPlanet(scene);
+	const trajectory = new Trajectory(name, semiMajAxis, orbInc, argPeri, eccentricity, ascNode, meanAnom, periodYr);
+	const cometsCO = new CelestialObject(trajectory, bodies, scene, 0.05, cometTexture, "comet");
+}
 
 // Asteroid Belt (Shaped like a ring)
 function createAsteroidBelt() {
@@ -135,12 +142,6 @@ function createAsteroidBelt() {
 const asteroidBelt = createAsteroidBelt();
 scene.add(asteroidBelt);
 
-jupiterCO.traceOrbits(scene);
-jupiterCO.createPlanet(scene);
-
-saturnCO.traceOrbits(scene);
-saturnCO.createPlanet(scene);
-
 function createRing(planet: THREE.Mesh, innerRadius: number, outerRadius: number, name: string, texture: THREE.Texture) {
 	const ringGeometry = new THREE.RingGeometry(innerRadius, outerRadius, 64);
 	const ringMaterial = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
@@ -150,14 +151,7 @@ function createRing(planet: THREE.Mesh, innerRadius: number, outerRadius: number
 	ring.name = name;
 	planet.add(ring);
 }
-createRing(saturnCO.getPlanetMesh(), 0.2, 0.35, "Saturn Ring", saturnRingTexture);  // Adding Saturn's ring
-
-uranusCO.traceOrbits(scene);
-uranusCO.createPlanet(scene);
-
-neptuneCO.traceOrbits(scene);
-neptuneCO.createPlanet(scene);
-
+createRing(saturnCO.mesh, 0.2, 0.35, "Saturn Ring", saturnRingTexture);  // Adding Saturn's ring
 
 function updateSpeed(value: string) {
 	CelestialObject.setSimSpeed(parseFloat(value));
@@ -307,9 +301,12 @@ function animate() {
 	if (planetText && planetText.textContent !== planetNames[selectedPlanet]) {
 		planetText.textContent = planetNames[selectedPlanet];
 	}
-	updateDate();
-	CelestialObject.updatePosition(scene);
-	renderer.render(scene, camera);
+  
+	bodies.forEach(body => {
+		body.updatePosition(simSpeed);
+	})
+	CelestialObject.updateTheDate(epoch, simSpeed);
+	renderer.render( scene, camera );
 }
 
 // Set up a callback for when loading is complete
