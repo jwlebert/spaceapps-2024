@@ -82,6 +82,9 @@ function createPlanet(size: number, distance: number, name: string, texture: THR
 var epoch = new Date('December 9, 2014');  // start the calendar 
 var simSpeed = 0.75;                        // value from the scroll control
 
+const bodies: CelestialObject[] = [];
+
+
 const mercuryTrajectory = new Trajectory("Mercury", 0.38709893, 7.00487, 29.124, 0.20563069, 48.33167, 174.796, 0.240846);
 const venusTrajectory = new Trajectory("Venus", 0.72333199, 3.39471, 54.9, 0.00677323, 76.7, 181.98, 0.615);
 const earthTrajectory = new Trajectory("Earth", 1, 0.00005, 102.94719, 0.01671022, 0, 100.47, 1);
@@ -100,7 +103,6 @@ const saturnCO = new CelestialObject(saturnTrajectory, bodies, scene, 0.083626 *
 const uranusCO = new CelestialObject(uranusTrajectory, bodies, scene, 0.036422 * sunFactor, uranusTexture);
 const neptuneCO = new CelestialObject(neptuneTrajectory, bodies, scene, 0.035359 * sunFactor, neptuneTexture);
 
-const bodies: CelestialObject[] = [];
 const cometTexture = textureLoader.load('textures/Asteroid.jpg');
 
 for (const obj of data) {
@@ -115,6 +117,7 @@ for (const obj of data) {
 
 	const trajectory = new Trajectory(name, semiMajAxis, orbInc, argPeri, eccentricity, ascNode, meanAnom, periodYr);
 	const cometsCO = new CelestialObject(trajectory, bodies, scene, 0.05, cometTexture, "comet");
+	console.log(cometsCO);
 }
 
 // Asteroid Belt (Shaped like a ring)
@@ -154,19 +157,19 @@ function createRing(planet: THREE.Mesh, innerRadius: number, outerRadius: number
 createRing(saturnCO.mesh, 0.2, 0.35, "Saturn Ring", saturnRingTexture);  // Adding Saturn's ring
 
 function updateSpeed(value: string) {
-	CelestialObject.setSimSpeed(parseFloat(value));
+	simSpeed = Number(value);
 	const speedDisplay = document.getElementById('speedValue');
 	if (speedDisplay) {
-		speedDisplay.textContent = CelestialObject.getSimSpeed().toString();
+		speedDisplay.textContent = simSpeed.toString();
 	}
 }
 
-function updateDate() {
-	const dateDisplay = document.getElementById('dateValue');
-	if (dateDisplay) {
-		dateDisplay.textContent = CelestialObject.getEpoch();
-	}
-}
+// function updateDate() {
+// 	const dateDisplay = document.getElementById('dateValue');
+// 	if (dateDisplay) {
+// 		dateDisplay.textContent = epoch.getDate().toString();
+// 	}
+// }
 
 const planets = ["None", sunSphere, mercuryCO, venusCO, earthCO, marsCO, jupiterCO, saturnCO, uranusCO, neptuneCO];
 const planetNames = ["None", "Sun", "Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune"];
@@ -187,7 +190,7 @@ window.addEventListener('DOMContentLoaded', () => {
 			const nextPlanet = planets[(selectedPlanet + 1) % planets.length];
 			selectedPlanet = (selectedPlanet + 1) % planets.length;
 			if (nextPlanet instanceof CelestialObject) {
-				curPlanet = nextPlanet.getPlanetMesh();
+				curPlanet = nextPlanet.mesh;
 			} else if (selectedPlanet == 1 && nextPlanet instanceof THREE.Object3D) {
 				curPlanet = nextPlanet;
 			} else {
@@ -207,7 +210,7 @@ window.addEventListener('DOMContentLoaded', () => {
 			const prevPlanet = planets[(selectedPlanet - 1 + planets.length) % planets.length];
 			selectedPlanet = (selectedPlanet - 1 + planets.length) % planets.length;
 			if (prevPlanet instanceof CelestialObject) {
-				curPlanet = prevPlanet.getPlanetMesh();
+				curPlanet = prevPlanet.mesh;
 			} else if (selectedPlanet == 1 && prevPlanet instanceof THREE.Object3D) {
 				curPlanet = prevPlanet;
 			} else {

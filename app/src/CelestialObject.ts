@@ -233,16 +233,6 @@ export class CelestialObject {
         }  // 24 hours * milliseconds in an hour * simSpeed 
         //	 document.getElementById("modelDate").innerHTML = (epoch.getMonth() + 1) + "-" + epoch.getDate() + "-" + epoch.getFullYear() ;
     }
-
-    static getEpoch() {
-        return epoch.toDateString();
-    }
-
-    static setSimSpeed(speed: number) {
-        simSpeed = speed;
-    }
-
-    static getSimSpeed() { return simSpeed; }
 }
 
 /*----------------------------------------------------------------------------------------------*
