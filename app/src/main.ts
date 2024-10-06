@@ -100,7 +100,7 @@ for (const obj of data) {
 	const meanAnom = obj.ma;
 
 	const trajectory = new Trajectory(name, semiMajAxis, orbInc, argPeri, eccentricity, ascNode, meanAnom, periodYr);
-	const cometsCO = new CelestialObject(trajectory, bodies, scene, 0.1, cometTexture);
+	const cometsCO = new CelestialObject(trajectory, bodies, scene, 0.05, cometTexture, "comet");
 }
 
 

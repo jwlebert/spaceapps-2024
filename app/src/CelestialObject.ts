@@ -2,6 +2,8 @@
 
 import * as THREE from "three";
 
+type objType = "planet" | "comet";
+
 interface Position {
     x: number;
     y: number;
@@ -116,14 +118,16 @@ export class CelestialObject {
     size: number
     texture: THREE.Texture
     mesh: THREE.Mesh
+    type: objType
 
-    constructor(trajectory: Trajectory, bodies: CelestialObject[], scene: THREE.Scene, size: number, texture: THREE.Texture) {
+    constructor(trajectory: Trajectory, bodies: CelestialObject[], scene: THREE.Scene, size: number, texture: THREE.Texture, type: objType = "planet") {
         this.trajectory = trajectory;
         this.scene = scene;
         this.bodies = bodies;
 
         this.size = size;
         this.texture = texture;
+        this.type = type;
         this.mesh = new THREE.Mesh();
 
         this.traceOrbits();
@@ -133,6 +137,7 @@ export class CelestialObject {
     // Generate line segments from points around the trajectory of the orbiting objects.
     // Trace the orbits for the following array of objects.
     traceOrbits() {
+        if (this.type != "planet") {return;}
         var geometry;
         var material = new THREE.LineBasicMaterial({ color: 0xCCCCFF });
         // console.log("Entering traceOrbits " + heavenlyBodies.length) ;
