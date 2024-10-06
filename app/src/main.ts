@@ -1,7 +1,5 @@
 import * as THREE from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { log } from "three/webgpu";
 
 // import { CelestialObject, Trajectory } from "./CelestialObject.js";
 
@@ -127,6 +125,7 @@ function createRing(planet: THREE.Mesh, innerRadius: number, outerRadius: number
 	const ringMaterial = new THREE.MeshBasicMaterial({ map: texture });
 	const ring = new THREE.Mesh(ringGeometry, ringMaterial);
 	ring.rotation.x = Math.PI / 2;
+	ring.name = name;
 	planet.add(ring);
 }
 createRing(saturn, 0.2, 0.35, "Saturn Ring", saturnRingTexture);  // Adding Saturn's ring
