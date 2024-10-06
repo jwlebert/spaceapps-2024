@@ -164,12 +164,13 @@ function updateSpeed(value: string) {
 	}
 }
 
-// function updateDate() {
-// 	const dateDisplay = document.getElementById('dateValue');
-// 	if (dateDisplay) {
-// 		dateDisplay.textContent = epoch.getDate().toString();
-// 	}
-// }
+function updateDate() {
+	const dateDisplay = document.getElementById('dateValue');
+	if (dateDisplay) {
+		dateDisplay.textContent = epoch.toLocaleDateString('en-GB', { month: '2-digit', year: 'numeric' });
+	}
+	epoch.setTime(epoch.getTime() + simSpeed * 24 * 3600000);
+}
 
 const planets = ["None", sunSphere, mercuryCO, venusCO, earthCO, marsCO, jupiterCO, saturnCO, uranusCO, neptuneCO];
 const planetNames = ["None", "Sun", "Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune"];
@@ -309,7 +310,8 @@ function animate() {
 	bodies.forEach(body => {
 		body.updatePosition(simSpeed);
 	})
-	CelestialObject.updateTheDate(epoch, simSpeed);
+	updateDate();
+	// CelestialObject.updateTheDate(epoch, simSpeed);
 	renderer.render( scene, camera );
 }
 
