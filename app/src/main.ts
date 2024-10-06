@@ -60,7 +60,7 @@ sunSphere.name = "Sun";
 // Add the sun sphere to the scene
 scene.add(sunSphere);
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 1); // Soft white light
+const ambientLight = new THREE.AmbientLight(0xffffff, 3); // Soft white light
 scene.add(ambientLight);
 
 // Add point light (like sunlight)
@@ -236,6 +236,7 @@ window.addEventListener('DOMContentLoaded', () => {
 	if (resetCamera) {
 		resetCamera.addEventListener('click', () => {
 			camera.position.set(0, 2.5, 4);
+			camera.lookAt(sunSphere.position);
 		});
 	}
 });
