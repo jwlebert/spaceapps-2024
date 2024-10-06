@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { log } from "three/webgpu";
 
 // import { CelestialObject, Trajectory } from "./CelestialObject.js";
 
@@ -12,9 +13,11 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
 camera.position.set(0, 2.5, 4);
 
-// const manager = new THREE.LoadingManager();
-const gltfLoader = new GLTFLoader();
-const pngLoader = new THREE.TextureLoader();
+// Create a loading manager
+const loadingManager = new THREE.LoadingManager();
+
+const pngLoader = new THREE.TextureLoader(loadingManager);
+
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(w, h);
@@ -23,7 +26,6 @@ renderer.setSize(w, h);
 document.body.appendChild(renderer.domElement);
 
 pngLoader.load("/textures/starmap-warped.png", function (texture : THREE.Texture) {
-	console.log(texture);
 	texture.mapping = THREE.EquirectangularReflectionMapping;
 
 	// Set the loaded EXR as the scene background
@@ -33,28 +35,189 @@ pngLoader.load("/textures/starmap-warped.png", function (texture : THREE.Texture
 	console.error('Error loading PNG:', error); // Log any errors
 });
 
-// let sun: THREE.Group;
-gltfLoader.load("/textures/glb/sun.glb", (gltf) => {
-	const sun = new THREE.Object3D();
-	const dirLight = new THREE.HemisphereLight(0xFFFFFF,0xFFFFFF, 10);
-	sun.add(dirLight);
-	sun.add(gltf.scene);
-	sun.position.set(0, 0, 0);
+// Load the texture for the sun
+const textureLoader = new THREE.TextureLoader(loadingManager);
 
-	scene.add(sun);
-}, undefined, function (error) {
-	console.error('An error happened while loading the GLTF model:', error);
-});
+const sunTexture = textureLoader.load('textures/sun_texture.jpg');
+const mercuryTexture = textureLoader.load('textures/Mercury.jpg');
+const venusTexture = textureLoader.load('textures/Venus.jpg');
+const earthTexture = textureLoader.load('textures/Earth.jpg');
+const marsTexture = textureLoader.load('textures/Mars.jpg');
+const asteroidTexture = textureLoader.load('textures/Asteroid.jpg');
+const jupiterTexture = textureLoader.load('textures/Jupiter.jpg');
+const saturnTexture = textureLoader.load('textures/Saturn.jpg');
+const saturnRingTexture = textureLoader.load('textures/Saturn Ring.png');
+const uranusTexture = textureLoader.load('textures/Uranus.jpg');
+const neptuneTexture = textureLoader.load('textures/Neptune.jpg');
+
+// Create a sphere geometry and apply the sun texture
+const geometry = new THREE.SphereGeometry(1, 32, 32);
+const material = new THREE.MeshStandardMaterial({ map: sunTexture });
+const sunSphere = new THREE.Mesh(geometry, material);
+sunSphere.position.set(0, 0, 0);
+sunSphere.name = "Sun";
+// Add the sun sphere to the scene
+scene.add(sunSphere);
+
+const ambientLight = new THREE.AmbientLight(0xffffff, 1); // Soft white light
+scene.add(ambientLight);
+
+// Add point light (like sunlight)
+const pointLight = new THREE.PointLight(0xffffff, 1, 100);
+pointLight.position.set(5, 5, 5);
+scene.add(pointLight);
+
+// Function to create a planet
+function createPlanet(size: number, distance: number, name: string, texture : THREE.Texture) {
+	const geometry = new THREE.SphereGeometry(size, 32, 32);
+	const material = new THREE.MeshStandardMaterial({ map: texture });
+	const planet = new THREE.Mesh(geometry, material);
+	planet.position.set(distance, 0, 0);
+	planet.name = name;
+	
+	return planet;
+}
+
+// Adding Planets with Correct Sizes and Distances (scaled)
+const mercury = createPlanet(0.03, 5, "Mercury", mercuryTexture);
+scene.add(mercury);
+
+const venus = createPlanet(0.07, 7.5, "Venus", venusTexture);
+scene.add(venus);
+
+const earth = createPlanet(0.08, 10, "Earth", earthTexture);
+scene.add(earth);
+
+const mars = createPlanet(0.04, 15, "Mars", marsTexture);
+scene.add(mars);
+
+// Asteroid Belt (Shaped like a ring)
+function createAsteroidBelt() {
+	const group = new THREE.Group();
+	const beltRadius = 20;
+	const beltWidth = 1.5;
+	const numAsteroids = 500;
+
+	for (let i = 0; i < numAsteroids; i++) {
+		const angle = Math.random() * Math.PI * 2;
+		const radius = beltRadius + (Math.random() - 0.5) * beltWidth;
+		const asteroid = createPlanet(0.02, radius, "Asteroid", asteroidTexture);
+		asteroid.position.set(
+			Math.cos(angle) * radius,
+			0,
+			Math.sin(angle) * radius
+		);
+		group.add(asteroid);
+	}
+	return group;
+}
+const asteroidBelt = createAsteroidBelt();
+scene.add(asteroidBelt);
+
+// Jupiter (largest planet)
+const jupiter = createPlanet(0.2, 25, "Jupiter", jupiterTexture);
+scene.add(jupiter);
+
+// Saturn with rings
+const saturn = createPlanet(0.15, 30, "Saturn", saturnTexture);
+scene.add(saturn);
+
+function createRing(planet: THREE.Mesh, innerRadius: number, outerRadius: number, name: string, texture : THREE.Texture) {
+	const ringGeometry = new THREE.RingGeometry(innerRadius, outerRadius, 64);
+	const ringMaterial = new THREE.MeshBasicMaterial({ map: texture });
+	const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+	ring.rotation.x = Math.PI / 2;
+	planet.add(ring);
+}
+createRing(saturn, 0.2, 0.35, "Saturn Ring", saturnRingTexture);  // Adding Saturn's ring
+
+// Uranus with rings
+const uranus = createPlanet(0.12, 35, "Uranus", uranusTexture);
+scene.add(uranus);
+
+// Neptune (last major planet)
+const neptune = createPlanet(0.12, 40, "Neptune", neptuneTexture);
+scene.add(neptune);
+
+// Click detection setup
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+window.addEventListener('click', onMouseClick, false);
+
+function onMouseClick(event: MouseEvent) {
+  // Calculate mouse position in normalized device coordinates
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+  // Update the raycaster with the camera and mouse position
+  raycaster.setFromCamera(mouse, camera);
+
+  // Calculate objects intersecting the ray
+  const objs = [sunSphere, mercury, venus, earth, mars, asteroidBelt, jupiter, saturn, uranus, neptune];
+  const intersects = raycaster.intersectObjects(objs, true);
+
+  if (intersects.length > 0) {
+	// Show the info window
+	const infoWindow = document.getElementById('infoWindow');
+	
+	if (infoWindow) {
+	  infoWindow.style.display = 'block';
+	  infoWindow.getElementsByClassName("infoTitle")[0].textContent = intersects[0].object.name;
+	  console.log(infoWindow.getElementsByTagName("h2"));
+	  
+	  console.log(intersects[0].object.name);
+	  
+	  console.log('Info window displayed');
+	}
+  }
+}
+
+// Close button functionality
+const closeButton = document.getElementById('closeButton');
+if (closeButton) {
+  closeButton.addEventListener('click', () => {
+	const infoWindow = document.getElementById('infoWindow');
+	if (infoWindow) {
+	  infoWindow.style.display = 'none';
+	}
+  });
+}
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.03;
-camera.position.z = 1;
 
 function animate() {
 	renderer.render( scene, camera );
 }
-renderer.setAnimationLoop( animate );
+
+// Set up a callback for when loading is complete
+loadingManager.onLoad = () => {
+    console.log('All textures loaded!');
+	// Hide the loading screen
+	const loadingScreen = document.getElementById('loadingScreen');
+	if (loadingScreen) {
+		loadingScreen.style.display = 'none';
+	}
+
+	// Show the main content
+	const mainContent = document.getElementById('mainContent');
+	if (mainContent) {
+		mainContent.style.display = 'block';
+	}
+    // Now you can start rendering the scene
+	renderer.setAnimationLoop( animate );
+};
+
+// Set up a callback for when an item is loaded
+loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
+    console.log(`Loaded ${url}. Progress: ${itemsLoaded} of ${itemsTotal}`);
+};
+
+// Set up a callback for when an item is loaded with an error
+loadingManager.onError = (url) => {
+    console.error(`There was an error loading ${url}`);
+};
 
 function handleWindowResize() {
 	camera.aspect = window.innerWidth / window.innerHeight;
