@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { CelestialObject, Trajectory } from "./CelestialObject";
 
 // import { CelestialObject, Trajectory } from "./CelestialObject.js";
 
@@ -10,6 +11,8 @@ const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
 camera.position.set(0, 2.5, 4);
+// Rotate the camera by 90 degrees around the Z-axis (roll)
+camera.rotation.z = Math.PI / 2; // 90 degrees in radians
 
 // Create a loading manager
 const loadingManager = new THREE.LoadingManager();
@@ -49,7 +52,8 @@ const uranusTexture = textureLoader.load('textures/Uranus.jpg');
 const neptuneTexture = textureLoader.load('textures/Neptune.jpg');
 
 // Create a sphere geometry and apply the sun texture
-const geometry = new THREE.SphereGeometry(1, 32, 32);
+const sunFactor = 1; // radius of the sun, used to set the scale of other planets
+const geometry = new THREE.SphereGeometry(sunFactor, 32, 32);
 const material = new THREE.MeshStandardMaterial({ map: sunTexture });
 const sunSphere = new THREE.Mesh(geometry, material);
 sunSphere.position.set(0, 0, 0);
@@ -76,33 +80,50 @@ function createPlanet(size: number, distance: number, name: string, texture : TH
 	return planet;
 }
 
-// Adding Planets with Correct Sizes and Distances (scaled)
-const mercury = createPlanet(0.03, 5, "Mercury", mercuryTexture);
-scene.add(mercury);
+const mercuryTrajectory = new Trajectory("Mercury",0.72333199,3.39471,54.9,0.00677323,76.7,181.98,0.615);
+const mercuryCO = new CelestialObject(mercuryTrajectory, 0.003504*sunFactor+1, mercuryTexture);
 
-const venus = createPlanet(0.07, 7.5, "Venus", venusTexture);
-scene.add(venus);
+mercuryCO.traceOrbits(scene);
+mercuryCO.createPlanet(scene);
 
-const earth = createPlanet(0.08, 10, "Earth", earthTexture);
-scene.add(earth);
 
-const mars = createPlanet(0.04, 15, "Mars", marsTexture);
-scene.add(mars);
+const venusTrajectory = new Trajectory("Venus",0.72333199,3.39471,54.9,0.00677323,76.7,181.98,0.615);
+const venusCO = new CelestialObject(venusTrajectory, 0.003504*sunFactor+1, venusTexture);
+
+venusCO.traceOrbits(scene);
+venusCO.createPlanet(scene);
+
+// Earth
+const earthTrajectory = new Trajectory("Earth",0.72333199,3.39471,54.9,0.00677323,76.7,181.98,0.615);
+const earthCO = new CelestialObject(earthTrajectory, 0.003504*sunFactor+1, earthTexture);
+
+earthCO.traceOrbits(scene);
+earthCO.createPlanet(scene);
+
+
+// Mars
+const marsTrajectory = new Trajectory("Mars",0.72333199,3.39471,54.9,0.00677323,76.7,181.98,0.615);
+const marsCO = new CelestialObject(marsTrajectory, 0.003504*sunFactor+1, marsTexture);
+
+marsCO.traceOrbits(scene);
+marsCO.createPlanet(scene);
 
 // Asteroid Belt (Shaped like a ring)
 function createAsteroidBelt() {
 	const group = new THREE.Group();
 	const beltRadius = 20;
 	const beltWidth = 1.5;
-	const numAsteroids = 500;
+	const numAsteroids = 800;
 
 	for (let i = 0; i < numAsteroids; i++) {
 		const angle = Math.random() * Math.PI * 2;
 		const radius = beltRadius + (Math.random() - 0.5) * beltWidth;
 		const asteroid = createPlanet(0.02, radius, "Asteroid", asteroidTexture);
+		// Add random height variation to the y-position
+        const yOffset = (Math.random() - 0.5);
 		asteroid.position.set(
 			Math.cos(angle) * radius,
-			0,
+			yOffset,
 			Math.sin(angle) * radius
 		);
 		group.add(asteroid);
@@ -113,12 +134,18 @@ const asteroidBelt = createAsteroidBelt();
 scene.add(asteroidBelt);
 
 // Jupiter (largest planet)
-const jupiter = createPlanet(0.2, 25, "Jupiter", jupiterTexture);
-scene.add(jupiter);
+const jupiterTrajectory = new Trajectory("Jupiter",0.72333199,3.39471,54.9,0.00677323,76.7,181.98,0.615);
+const jupiterCO = new CelestialObject(jupiterTrajectory, 0.003504*sunFactor+1, jupiterTexture);
+
+jupiterCO.traceOrbits(scene);
+jupiterCO.createPlanet(scene);
 
 // Saturn with rings
-const saturn = createPlanet(0.15, 30, "Saturn", saturnTexture);
-scene.add(saturn);
+const saturnTrajectory = new Trajectory("Saturn",0.72333199,3.39471,54.9,0.00677323,76.7,181.98,0.615);
+const saturnCO = new CelestialObject(saturnTrajectory, 0.003504*sunFactor+1, saturnTexture);
+
+saturnCO.traceOrbits(scene);
+saturnCO.createPlanet(scene);
 
 function createRing(planet: THREE.Mesh, innerRadius: number, outerRadius: number, name: string, texture : THREE.Texture) {
 	const ringGeometry = new THREE.RingGeometry(innerRadius, outerRadius, 64);
@@ -128,15 +155,21 @@ function createRing(planet: THREE.Mesh, innerRadius: number, outerRadius: number
 	ring.name = name;
 	planet.add(ring);
 }
-createRing(saturn, 0.2, 0.35, "Saturn Ring", saturnRingTexture);  // Adding Saturn's ring
+createRing(saturnCO.getPlanetMesh(), 0.2, 0.35, "Saturn Ring", saturnRingTexture);  // Adding Saturn's ring
 
 // Uranus with rings
-const uranus = createPlanet(0.12, 35, "Uranus", uranusTexture);
-scene.add(uranus);
+const uranusTrajectory = new Trajectory("Uranus",0.72333199,3.39471,54.9,0.00677323,76.7,181.98,0.615);
+const uranusCO = new CelestialObject(uranusTrajectory, 0.003504*sunFactor+1, uranusTexture);
+
+uranusCO.traceOrbits(scene);
+uranusCO.createPlanet(scene);
 
 // Neptune (last major planet)
-const neptune = createPlanet(0.12, 40, "Neptune", neptuneTexture);
-scene.add(neptune);
+const neptuneTrajectory = new Trajectory("Neptune",0.72333199,3.39471,54.9,0.00677323,76.7,181.98,0.615);
+const neptuneCO = new CelestialObject(neptuneTrajectory, 0.003504*sunFactor+1, neptuneTexture);
+
+neptuneCO.traceOrbits(scene);
+neptuneCO.createPlanet(scene);
 
 // Click detection setup
 const raycaster = new THREE.Raycaster();
@@ -152,12 +185,15 @@ function onMouseClick(event: MouseEvent) {
   raycaster.setFromCamera(mouse, camera);
 
   // Calculate objects intersecting the ray
-  const objs = [sunSphere, mercury, venus, earth, mars, asteroidBelt, jupiter, saturn, uranus, neptune];
+  const objs = [sunSphere, mercuryCO.getPlanetMesh(), venusCO.getPlanetMesh(), earthCO.getPlanetMesh(), marsCO.getPlanetMesh(), asteroidBelt, jupiterCO.getPlanetMesh(), saturnCO.getPlanetMesh(), uranusCO.getPlanetMesh(), neptuneCO.getPlanetMesh()];
   const intersects = raycaster.intersectObjects(objs, true);
 
   if (intersects.length > 0) {
 	// Show the info window
 	const infoWindow = document.getElementById('infoWindow');
+	camera.position.set(intersects[0].object.position.x, intersects[0].object.position.y, intersects[0].object.position.z + 5);
+	camera.lookAt(intersects[0].object.position);
+	camera.position.z = intersects[0].object.scale.z * 1.5;
 	
 	if (infoWindow) {
 	  infoWindow.style.display = 'block';
@@ -187,6 +223,7 @@ controls.enableDamping = true;
 controls.dampingFactor = 0.03;
 
 function animate() {
+	CelestialObject.updatePosition(scene);
 	renderer.render( scene, camera );
 }
 
