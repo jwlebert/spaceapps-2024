@@ -1,8 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { CelestialObject, Trajectory } from "./CelestialObject";
 
-// import { CelestialObject, Trajectory } from "./CelestialObject.js";
+import { CelestialObject, Trajectory } from "./CelestialObject";
 
 const w = window.innerWidth;
 const h = window.innerHeight;
@@ -16,7 +15,6 @@ camera.rotation.z = Math.PI / 2; // 90 degrees in radians
 
 // Create a loading manager
 const loadingManager = new THREE.LoadingManager();
-
 const pngLoader = new THREE.TextureLoader(loadingManager);
 
 
@@ -80,33 +78,28 @@ function createPlanet(size: number, distance: number, name: string, texture : TH
 	return planet;
 }
 
-const mercuryTrajectory = new Trajectory("Mercury",0.72333199,3.39471,54.9,0.00677323,76.7,181.98,0.615);
-const mercuryCO = new CelestialObject(mercuryTrajectory, 0.003504*sunFactor+1, mercuryTexture);
+var epoch = new Date('December 9, 2014');  // start the calendar 
+var simSpeed = 0.75;                        // value from the scroll control
 
-mercuryCO.traceOrbits(scene);
-mercuryCO.createPlanet(scene);
+const bodies: CelestialObject[] = [];
+
+
+
+const mercuryTrajectory = new Trajectory("Mercury",0.72333199,3.39471,54.9,0.00677323,76.7,181.98,0.615);
+const mercuryCO = new CelestialObject(mercuryTrajectory, bodies, scene, 0.003504*sunFactor+1, mercuryTexture);
 
 
 const venusTrajectory = new Trajectory("Venus",0.72333199,3.39471,54.9,0.00677323,76.7,181.98,0.615);
-const venusCO = new CelestialObject(venusTrajectory, 0.003504*sunFactor+1, venusTexture);
-
-venusCO.traceOrbits(scene);
-venusCO.createPlanet(scene);
+const venusCO = new CelestialObject(venusTrajectory, bodies, scene, 0.003504*sunFactor+1, venusTexture);
 
 // Earth
 const earthTrajectory = new Trajectory("Earth",0.72333199,3.39471,54.9,0.00677323,76.7,181.98,0.615);
-const earthCO = new CelestialObject(earthTrajectory, 0.003504*sunFactor+1, earthTexture);
-
-earthCO.traceOrbits(scene);
-earthCO.createPlanet(scene);
+const earthCO = new CelestialObject(earthTrajectory, bodies, scene, 0.003504*sunFactor+1, earthTexture);
 
 
 // Mars
 const marsTrajectory = new Trajectory("Mars",0.72333199,3.39471,54.9,0.00677323,76.7,181.98,0.615);
-const marsCO = new CelestialObject(marsTrajectory, 0.003504*sunFactor+1, marsTexture);
-
-marsCO.traceOrbits(scene);
-marsCO.createPlanet(scene);
+const marsCO = new CelestialObject(marsTrajectory, bodies, scene, 0.003504*sunFactor+1, marsTexture);
 
 // Asteroid Belt (Shaped like a ring)
 function createAsteroidBelt() {
@@ -135,17 +128,11 @@ scene.add(asteroidBelt);
 
 // Jupiter (largest planet)
 const jupiterTrajectory = new Trajectory("Jupiter",0.72333199,3.39471,54.9,0.00677323,76.7,181.98,0.615);
-const jupiterCO = new CelestialObject(jupiterTrajectory, 0.003504*sunFactor+1, jupiterTexture);
-
-jupiterCO.traceOrbits(scene);
-jupiterCO.createPlanet(scene);
+const jupiterCO = new CelestialObject(jupiterTrajectory, bodies, scene, 0.003504*sunFactor+1, jupiterTexture);
 
 // Saturn with rings
 const saturnTrajectory = new Trajectory("Saturn",0.72333199,3.39471,54.9,0.00677323,76.7,181.98,0.615);
-const saturnCO = new CelestialObject(saturnTrajectory, 0.003504*sunFactor+1, saturnTexture);
-
-saturnCO.traceOrbits(scene);
-saturnCO.createPlanet(scene);
+const saturnCO = new CelestialObject(saturnTrajectory, bodies, scene, 0.003504*sunFactor+1, saturnTexture);
 
 function createRing(planet: THREE.Mesh, innerRadius: number, outerRadius: number, name: string, texture : THREE.Texture) {
 	const ringGeometry = new THREE.RingGeometry(innerRadius, outerRadius, 64);
@@ -155,21 +142,15 @@ function createRing(planet: THREE.Mesh, innerRadius: number, outerRadius: number
 	ring.name = name;
 	planet.add(ring);
 }
-createRing(saturnCO.getPlanetMesh(), 0.2, 0.35, "Saturn Ring", saturnRingTexture);  // Adding Saturn's ring
+createRing(saturnCO.mesh, 0.2, 0.35, "Saturn Ring", saturnRingTexture);  // Adding Saturn's ring
 
 // Uranus with rings
 const uranusTrajectory = new Trajectory("Uranus",0.72333199,3.39471,54.9,0.00677323,76.7,181.98,0.615);
-const uranusCO = new CelestialObject(uranusTrajectory, 0.003504*sunFactor+1, uranusTexture);
-
-uranusCO.traceOrbits(scene);
-uranusCO.createPlanet(scene);
+const uranusCO = new CelestialObject(uranusTrajectory, bodies, scene, 0.003504*sunFactor+1, uranusTexture);
 
 // Neptune (last major planet)
 const neptuneTrajectory = new Trajectory("Neptune",0.72333199,3.39471,54.9,0.00677323,76.7,181.98,0.615);
-const neptuneCO = new CelestialObject(neptuneTrajectory, 0.003504*sunFactor+1, neptuneTexture);
-
-neptuneCO.traceOrbits(scene);
-neptuneCO.createPlanet(scene);
+const neptuneCO = new CelestialObject(neptuneTrajectory, bodies, scene, 0.003504 * sunFactor + 1, neptuneTexture);
 
 // Click detection setup
 const raycaster = new THREE.Raycaster();
@@ -185,7 +166,7 @@ function onMouseClick(event: MouseEvent) {
   raycaster.setFromCamera(mouse, camera);
 
   // Calculate objects intersecting the ray
-  const objs = [sunSphere, mercuryCO.getPlanetMesh(), venusCO.getPlanetMesh(), earthCO.getPlanetMesh(), marsCO.getPlanetMesh(), asteroidBelt, jupiterCO.getPlanetMesh(), saturnCO.getPlanetMesh(), uranusCO.getPlanetMesh(), neptuneCO.getPlanetMesh()];
+  const objs = [sunSphere, mercuryCO.mesh, venusCO.mesh, earthCO.mesh, marsCO.mesh, asteroidBelt, jupiterCO.mesh, saturnCO.mesh, uranusCO.mesh, neptuneCO.mesh];
   const intersects = raycaster.intersectObjects(objs, true);
 
   if (intersects.length > 0) {
@@ -223,7 +204,10 @@ controls.enableDamping = true;
 controls.dampingFactor = 0.03;
 
 function animate() {
-	CelestialObject.updatePosition(scene);
+	bodies.forEach(body => {
+		body.updatePosition(simSpeed);
+	})
+	CelestialObject.updateTheDate(epoch, simSpeed);
 	renderer.render( scene, camera );
 }
 
@@ -261,117 +245,3 @@ function handleWindowResize() {
 	renderer.setSize(window.innerWidth, window.innerHeight);
 }
 window.addEventListener('resize', handleWindowResize, false);
-// function render(time: number) {
-// 	time *= 0.001;  // convert time to seconds
-   
-// 	// sun.rotation.x = time;
-// 	// sun.rotation.y = time;
-   
-// 	renderer.render(scene, camera);
-   
-// 	requestAnimationFrame(render);
-// }
-
-// requestAnimationFrame(render);
-
-// const sun: CelestialObject = new CelestialObject()
-
-// manager.onLoad = () => init(sceneData);
-
-
-
-// const venus: CelestialObject = new CelestialObject(new Trajectory("Venus",0.72333199,3.39471,54.9,0.00677323,76.7,181.98,0.615));
-// function init(data) {
-// 	const { objs } = data;
-// 	const solarSystem = new THREE.Group();
-// 	solarSystem.userData.update = (t) => {
-// 		solarSystem.children.forEach((child) => {
-// 			child.userData.update?.(t);
-// 		});
-// 	}
-// }
-// objs.forEach((name) => {
-	// 	let path = `/textures/gltf/${name}/scene.gltf`;
-// 	loader.load(path, (obj) => {
-	// 		obj.traverse((child) => {
-		// 			if (child.isMesh) {
-			// 				sceneData.objs.push(child);
-			// 			}
-			// 		});
-// 	});
-// });
-
-
-// const wireMat = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true});
-// scene.overrideMaterial = wireMat;
-
-
-
-//   const sun = getSun();
-//   solarSystem.add(sun);
-
-//   const mercury = getPlanet({ size: 0.1, distance: 1.25, img: 'mercury.png' });
-//   solarSystem.add(mercury);
-
-//   const venus = getPlanet({ size: 0.2, distance: 1.65, img: 'venus.png' });
-//   solarSystem.add(venus);
-
-//   const moon = getPlanet({ size: 0.075, distance: 0.4, img: 'moon.png' });
-//   const earth = getPlanet({ children: [moon], size: 0.225, distance: 2.0, img: 'earth.png' });
-//   solarSystem.add(earth);
-
-//   const mars = getPlanet({ size: 0.15, distance: 2.25, img: 'mars.png' });
-//   solarSystem.add(mars);
-
-//   const asteroidBelt = getAsteroidBelt(objs);
-//   solarSystem.add(asteroidBelt);
-
-//   const jupiter = getPlanet({ size: 0.4, distance: 2.75, img: 'jupiter.png' });
-//   solarSystem.add(jupiter);
-
-//   const sRingGeo = new THREE.TorusGeometry(0.6, 0.15, 8, 64);
-//   const sRingMat = new THREE.MeshStandardMaterial();
-//   const saturnRing = new THREE.Mesh(sRingGeo, sRingMat);
-//   saturnRing.scale.z = 0.1;
-//   saturnRing.rotation.x = Math.PI * 0.5;
-//   const saturn = getPlanet({ children: [saturnRing], size: 0.35, distance: 3.25, img: 'saturn.png' });
-//   solarSystem.add(saturn);
-
-//   const uRingGeo = new THREE.TorusGeometry(0.5, 0.05, 8, 64);
-//   const uRingMat = new THREE.MeshStandardMaterial();
-//   const uranusRing = new THREE.Mesh(uRingGeo, uRingMat);
-//   uranusRing.scale.z = 0.1;
-//   const uranus = getPlanet({ children: [uranusRing], size: 0.3, distance: 3.75, img: 'uranus.png' });
-//   solarSystem.add(uranus);
-
-//   const neptune = getPlanet({ size: 0.3, distance: 4.25, img: 'neptune.png' });
-//   solarSystem.add(neptune);
-
-//   const elipticLines = getElipticLines();
-//   solarSystem.add(elipticLines);
-
-//   const starfield = getStarfield({ numStars: 500, size: 0.35 });
-//   scene.add(starfield);
-
-//   const nebula = getNebula({
-//     hue: 0.6,
-//     numSprites: 10,
-//     opacity: 0.2,
-//     radius: 40,
-//     size: 80,
-//     z: -50.5,
-//   });
-//   scene.add(nebula);
-
-//   const anotherNebula = getNebula({
-//     hue: 0.0,
-//     numSprites: 10,
-//     opacity: 0.2,
-//     radius: 40,
-//     size: 80,
-//     z: 50.5,
-//   });
-//   scene.add(anotherNebula);
-
-	// animate()
-// }

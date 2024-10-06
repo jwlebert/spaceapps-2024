@@ -111,20 +111,28 @@ export class Trajectory {
 
 export class CelestialObject {
     trajectory: Trajectory
+    bodies: CelestialObject[]
+    scene: THREE.Scene
     size: number
     texture: THREE.Texture
     mesh: THREE.Mesh
 
-    constructor(trajecture: Trajectory, size: number, texture: THREE.Texture) {
-        this.trajectory = trajecture;
+    constructor(trajectory: Trajectory, bodies: CelestialObject[], scene: THREE.Scene, size: number, texture: THREE.Texture) {
+        this.trajectory = trajectory;
+        this.scene = scene;
+        this.bodies = bodies;
+
         this.size = size;
         this.texture = texture;
         this.mesh = new THREE.Mesh();
+
+        this.traceOrbits();
+        this.createPlanet();
     }
 
     // Generate line segments from points around the trajectory of the orbiting objects.
     // Trace the orbits for the following array of objects.
-    traceOrbits(scene: THREE.Scene) {
+    traceOrbits() {
         var geometry;
         var material = new THREE.LineBasicMaterial({ color: 0xCCCCFF });
         // console.log("Entering traceOrbits " + heavenlyBodies.length) ;
@@ -148,84 +156,68 @@ export class CelestialObject {
         let line = new THREE.Line(geometry, material);
         line.name = this.trajectory.name + "_trace";
 
-        scene.add(line);
-        // console.log("line name  " + orbitName ) ;
+        this.scene.add(line);
     }
-    // console.log("Exiting traceOrbits") ;
 
-    createPlanet(scene: THREE.Scene) {
+    createPlanet() {
         var geometry = new THREE.SphereGeometry(this.size, 32, 32);
         var material = new THREE.MeshBasicMaterial({ map: this.texture });
         var planet = new THREE.Mesh(geometry, material);
+        
         planet.name = this.trajectory.name;
         planet.position.set(this.trajectory.position.x, this.trajectory.position.y, this.trajectory.position.z);
+
         this.mesh = planet;
-        scene.add(planet);
-        heavenlyBodies.push(this);
-    }
-
-    getPlanetMesh() {
-        return this.mesh;
+        this.scene.add(planet);
+        this.bodies.push(this);
     }
 
 
-    static updatePosition(scene: THREE.Scene) {
-        // With each tick of the clock, propagate the position and set the translation attribute.
-        // Update the position for the following array of objects.
+    // With each tick of the clock, propagate the position and set the translation attribute.
+    // Update the position for the following array of objects.
+    updatePosition(speed: number) {
         var currentPosition: Position = { x: 0, y: 0, z: 0 };
         var deltaTime = 0;
 
-        for (var hB in heavenlyBodies) {
+        var hbTAnomoly = this.trajectory.trueAnomoly;
+        var currentPosition = this.trajectory.propagate(hbTAnomoly);  // Determine the current position.
 
-            var hbTAnomoly = heavenlyBodies[hB].trajectory.trueAnomoly;
-            var currentPosition = heavenlyBodies[hB].trajectory.propagate(hbTAnomoly);  // Determine the current position.
+        var Xpos = currentPosition.x;
+        var Ypos = currentPosition.y;
+        var Zpos = currentPosition.z;
+        var hBName = this.trajectory.name;   // get the name of the current object and update translation
 
-            var Xpos = currentPosition.x;
-            var Ypos = currentPosition.y;
-            var Zpos = currentPosition.z;
-            var hBName = heavenlyBodies[hB].trajectory.name;   // get the name of the current object and update translation
+        var curObj = this.scene.getObjectByName(hBName);
+        if (curObj) curObj.position.set(Xpos, Ypos, Zpos);
+        else console.error("Object not found: " + hBName);
 
-            var curObj = scene.getObjectByName(hBName);
-            if (curObj) curObj.position.set(Xpos, Ypos, Zpos);
-            else console.error("Object not found: " + hBName);
+        // Calculate mean motion n:
+        var n = (2 * Math.PI) / (this.trajectory.period * 365.25);   // radians per day
 
-            //	console.log(curObj.name + "  " + curObj.position.x + ",  " + curObj.position.y + ",  " + curObj.position.z  ) ;
+        // Calculate Eccentric Anomaly E based on the orbital eccentricity and previous true anomaly:
+        var e = this.trajectory.oE;
+        var f = this.trajectory.trueAnomoly;        // this.trueAnomoly ;
+        var eA = this.trajectory.trueToEccentricAnomaly(e, f); // convert from true anomaly to eccentric anomaly
 
-            // Calculate mean motion n:
-            var n = (2 * Math.PI) / (heavenlyBodies[hB].trajectory.period * 365.25);   // radians per day
+        // Calculate current Mean Anomaly	
+        var m0 = eA - e * Math.sin(eA);
 
-            // Calculate Eccentric Anomaly E based on the orbital eccentricity and previous true anomaly:
-            var e = heavenlyBodies[hB].trajectory.oE;
-            var f = heavenlyBodies[hB].trajectory.trueAnomoly;        // heavenlyBodies[hB].trueAnomoly ;
-            var eA = heavenlyBodies[hB].trajectory.trueToEccentricAnomaly(e, f); // convert from true anomaly to eccentric anomaly
+        // deltaTime = (Math.abs(m0/n) - this.time) * simSpeed
+        //  deltaTime = Math.abs(m0/n) * simSpeed
+        deltaTime = speed * n;
 
-            // Calculate current Mean Anomaly	
-            var m0 = eA - e * Math.sin(eA);
+        // Update Mean anomaly by adding the Mean Anomaly at Epoch to the mean motion * delaTime
+        var mA = deltaTime + m0
 
-            // deltaTime = (Math.abs(m0/n) - heavenlyBodies[hB].time) * simSpeed
-            //  deltaTime = Math.abs(m0/n) * simSpeed
-            deltaTime = simSpeed * n;
+        this.trajectory.time = this.trajectory.time + deltaTime // increment timer
 
-            // Update Mean anomaly by adding the Mean Anomaly at Epoch to the mean motion * delaTime
-            var mA = deltaTime + m0
-
-            heavenlyBodies[hB].trajectory.time = heavenlyBodies[hB].trajectory.time + deltaTime // increment timer
-
-            eA = heavenlyBodies[hB].trajectory.meanToEccentricAnomaly(e, mA)
-            var trueAnomaly = heavenlyBodies[hB].trajectory.eccentricToTrueAnomaly(e, eA)
-            heavenlyBodies[hB].trajectory.trueAnomoly = trueAnomaly
-
-            //    console.log(hBName + " time = " +  heavenlyBodies[hB].time + "  delta time " + dt)		
-            //	  console.log(hBName + " eccentric anomaly " + E + " sin(f) " + sinf + " cos(f) " + cosf )
-            //	  console.log(hBName + " mean anomaly " + mA + " eccentric anomaly " + eA ) 		
-            //    console.log (hBName + " trueAnomaly = " + trueAnomaly + "   true Anomaly  " + heavenlyBodies[hB].trueAnomoly + "  mean motion = " + n) ;
-            //	  console.log(hBName + " eccentricity " + e + " true anomaly " + f + " Eccentric anomaly " + eA + " Mean anomaly " + m0 + " mean motion " + n) 	 
-        }
-        this.updateTheDate();
+        eA = this.trajectory.meanToEccentricAnomaly(e, mA)
+        var trueAnomaly = this.trajectory.eccentricToTrueAnomaly(e, eA)
+        this.trajectory.trueAnomoly = trueAnomaly
 
     };
 
-    static updateTheDate() {
+    static updateTheDate(epoch: Date, simSpeed: number) {
         // Display the simulated date to the right of the model.
         //  epoch.setTime(epoch.getTime() + simSpeed * 86400)
         if (simSpeed == 1) {
@@ -241,9 +233,7 @@ export class CelestialObject {
 /*----------------------------------------------------------------------------------------------*
 *                            {--- Global variables --}                                         *
 *----------------------------------------------------------------------------------------------*/
-var epoch = new Date('December 9, 2014');  // start the calendar 
-var simSpeed = 0.75;                        // value from the scroll control
-var heavenlyBodies: CelestialObject[] = [];                    // array to hold the objects
+
 // var solid = false;                        // start simulation with solid rendering of orbits
 // var solidLabels = false;                  // start simulation with solid rendering of Labels
 
