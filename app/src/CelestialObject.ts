@@ -236,13 +236,23 @@ export class CelestialObject {
         }  // 24 hours * milliseconds in an hour * simSpeed 
         //	 document.getElementById("modelDate").innerHTML = (epoch.getMonth() + 1) + "-" + epoch.getDate() + "-" + epoch.getFullYear() ;
     }
+
+    static getEpoch() {
+        return epoch.toDateString();
+    }
+
+    static setSimSpeed(speed: number) {
+        simSpeed = speed;
+    }
+
+    static getSimSpeed() { return simSpeed; }
 }
 
 /*----------------------------------------------------------------------------------------------*
 *                            {--- Global variables --}                                         *
 *----------------------------------------------------------------------------------------------*/
 var epoch = new Date('December 9, 2014');  // start the calendar 
-var simSpeed = 0.75;                        // value from the scroll control
+var simSpeed = 0.5;                        // value from the scroll control
 var heavenlyBodies: CelestialObject[] = [];                    // array to hold the objects
 // var solid = false;                        // start simulation with solid rendering of orbits
 // var solidLabels = false;                  // start simulation with solid rendering of Labels

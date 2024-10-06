@@ -12,8 +12,8 @@
     margin: 0;
   }
 
-  #blackText {
-    color: black;
+  #infoText {
+    color: white;
     font-family: monospace;
   }
 
@@ -50,9 +50,9 @@
   #infoWindow {
     position: absolute;
     top: 2%;
-    left: 1%;
+    right: 1%;
     /* transform: translate(-50%, -50%); */
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(33, 33, 33, 0.5);
     padding: 20px;
     width: 30%;
     border: 1px solid #ccc;
@@ -65,17 +65,86 @@
 
   #closeButton {
     position: absolute;
-    top: 0%;
-    left: 0%;
+    top: 1vw;
+    right: 1vw;
     background-color: rgba(255, 0, 0, 0.9);
     /* padding: 20px; */
-    border: 1px solid #ccc;
     border-radius: 3px;
     display: block;
     /* Hide by default */
-    z-index: 101;
     /* Ensure it's above other elements */
   }
+
+  #loadingContainer {
+    width: 50%;
+    margin: 0 auto;
+    border: 1px solid #ccc;
+    height: 30px;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+
+  /* Styling the actual loading bar */
+  #loadingBar {
+    width: 0%;
+    height: 100%;
+    background-color: #4caf50;
+    text-align: center;
+    line-height: 30px;
+    /* Center the text vertically */
+    border: #ccc;
+    border-radius: 5px;
+  }
+
+  .ui-container {
+    position: absolute;
+    color: #ccc;
+    margin: 20px;
+  }
+
+  .speed-display {
+    margin-top: 10px;
+    font-weight: bold;
+  }
+
+  .date-display {
+    font-weight: bold;
+  }
+  
+  .select-planet {
+    display: flex;
+    margin-top: 10px;
+    gap: 10px;
+    font-size: 24px;
+  }
+
+  .but {
+    background-color: red;
+    border: none;
+    color: white;
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+    font-size: 16px;
+    margin: 10px 2px;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+
+  .butPlanet {
+    background-color: green;
+    border: none;
+    color: white;
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    margin: 10px 2px;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+
 
   #mainContent {
     display: none;
@@ -86,15 +155,44 @@
   <div id="loadingScreen">
     <h1 id="loadingTitle">Orrery Web App</h1>
     <p id="loadingText">Loading...</p>
+    <!-- Loading bar container -->
+    <div id="loadingContainer">
+      <div id="loadingBar"></div>
+    </div>
   </div>
 
   <main id="mainContent">
     <div id="infoWindow">
       <button id="closeButton">X</button>
-      <h2 class="infoTitle" id="blackText">Info Window</h2>
-    
-    <p id="blackText" style="margin-top: 5px;">The Sun is the star at the center of our solar system. It is a nearly perfect sphere of hot plasma, with internal convective motion that generates a magnetic field via a dynamo process.</p>
-    <p id="blackText" style="margin-top: 5px;">The Sun is by far the most important source of energy for life on Earth. Its diameter is about 1.39 million kilometers, and its mass is about 330,000 times that of Earth. The Sun accounts for about 99.86% of the total mass of the Solar System.</p>
+      <h2 class="infoTitle" id="infoText">Info Window</h2>
+      <p id="infoText" class="diameterText"></p>
+      <p id="infoText" class="massText"></p>
+      <p id="infoText" class="distanceText"></p>
+      <p id="infoText" class="tempText"></p>
+      <p id="infoText" class="gravityText"></p>
+      <p id="infoText" class="infoText1" style="margin-top: 5px;"></p>
+      <p id="infoText" class="infoText2" style="margin-top: 5px;"></p>
+    </div>
+
+    <!-- Slider Container -->
+    <div class="ui-container">
+      <label for="speedSlider">Simulation Speed:</label>
+      <!-- Slider input to control speed -->
+      <input type="range" id="speedSlider" min="0.1" max="5" value="1" step="0.1">
+
+      <!-- Display the current speed value -->
+      <div class="speed-display">Current Speed: <span id="speedValue">0.5</span>x</div>
+      <div class="date-display">Current Date: <span id="dateValue"></span></div>
+
+      <button class="but" id="resetSim">Reset Simulation</button>
+      <button class="but" id="resetCamera">Reset Camera</button>
+
+      <div class="select-planet">
+        <button class="butPlanet" id="prevPlanet">←</button>
+        <button class="butPlanet" id="nextPlanet">→</button>
+        <p id="planetText"></p>
+      </div>
+
     </div>
   </main>
 
