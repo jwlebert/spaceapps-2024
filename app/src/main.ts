@@ -225,6 +225,35 @@ window.addEventListener('DOMContentLoaded', () => {
 			}
 		});
 	}
+// Define a heart shape function
+function createHeartShape(): THREE.Shape {
+	const x = 0, y = 0;
+	const heartShape = new THREE.Shape();
+  
+	heartShape.moveTo(x + 0.25, y + 0.23);
+	heartShape.bezierCurveTo(x + 0.25, y + 0.25, x + 0.2, y, x, y);
+	heartShape.bezierCurveTo(x - 0.3, y, x - 0.3, y + 0.35, x - 0.3, y + 0.35);
+	heartShape.bezierCurveTo(x - 0.3, y + 0.55, x - 0.1, y + 0.77, x + 0.25, y + 1);
+	heartShape.bezierCurveTo(x + 0.6, y + 0.77, x + 0.8, y + 0.55, x + 0.8, y + 0.35);
+	heartShape.bezierCurveTo(x + 0.8, y + 0.35, x + 0.8, y, x + 0.5, y);
+	heartShape.bezierCurveTo(x + 0.35, y, x + 0.25, y + 0.25, x + 0.25, y + 0.25);
+	
+	return heartShape;
+  }
+  
+  // Create heart geometry and scale it down
+  const heartShape = createHeartShape();
+  const heartGeometry = new THREE.ShapeGeometry(heartShape);
+  const heartMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // Red heart
+  const heartMesh = new THREE.Mesh(heartGeometry, heartMaterial);
+  
+  // Scale the heart to make it smaller
+  heartMesh.scale.set(0.05, -0.05, 0.05);  // Adjust the scale to make it smaller
+  heartMesh.position.set(0, 0, 0);  // Position at the center of the sun
+  
+  // Add the heart to the sun
+  sunSphere.add(heartMesh);
+
 
 	const resetSimulation = document.getElementById('resetSim');
 	if (resetSimulation) {
