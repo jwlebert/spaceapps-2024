@@ -13,17 +13,28 @@ const camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
 camera.position.set(0, 2.5, 4);
 
 // const manager = new THREE.LoadingManager();
-const loader = new GLTFLoader();
+const gltfLoader = new GLTFLoader();
+const pngLoader = new THREE.TextureLoader();
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(w, h);
-// renderer.toneMapping = THREE.ACESFilmicToneMapping;
-// renderer.outputColorSpace = THREE.SRGBColorSpace;
+
 
 document.body.appendChild(renderer.domElement);
 
+pngLoader.load("/textures/starmap-warped.png", function (texture : THREE.Texture) {
+	console.log(texture);
+	texture.mapping = THREE.EquirectangularReflectionMapping;
+
+	// Set the loaded EXR as the scene background
+	scene.background = texture;
+
+}, undefined, function (error) {
+	console.error('Error loading PNG:', error); // Log any errors
+});
+
 // let sun: THREE.Group;
-loader.load("/textures/glb/sun.glb", (gltf) => {
+gltfLoader.load("/textures/glb/sun.glb", (gltf) => {
 	const sun = new THREE.Object3D();
 	const dirLight = new THREE.HemisphereLight(0xFFFFFF,0xFFFFFF, 10);
 	sun.add(dirLight);
@@ -38,8 +49,7 @@ loader.load("/textures/glb/sun.glb", (gltf) => {
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.03;
-
-renderer.render(scene, camera);
+camera.position.z = 1;
 
 function animate() {
 	renderer.render( scene, camera );
