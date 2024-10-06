@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 import { CelestialObject, Trajectory } from "./CelestialObject";
+import data from "./comets.json";
 
 const w = window.innerWidth;
 const h = window.innerHeight;
@@ -49,6 +50,7 @@ const saturnRingTexture = textureLoader.load('textures/Saturn Ring.png');
 const uranusTexture = textureLoader.load('textures/Uranus.jpg');
 const neptuneTexture = textureLoader.load('textures/Neptune.jpg');
 
+
 // Create a sphere geometry and apply the sun texture
 const sunFactor = 1; // radius of the sun, used to set the scale of other planets
 const geometry = new THREE.SphereGeometry(sunFactor, 32, 32);
@@ -83,6 +85,23 @@ var simSpeed = 0.75;                        // value from the scroll control
 
 const bodies: CelestialObject[] = [];
 
+const cometTexture = textureLoader.load('textures/Asteroid.jpg');
+
+// console.log(data);
+
+for (const obj of data) {
+	const name = obj.name;
+	const eccentricity = obj.e;
+	const ascNode = obj.node * 0.01745329;
+	const orbInc = obj.i* 0.01745329;
+	const argPeri = obj.w * 0.01745329;
+	const periodYr = obj.per_y;
+	const semiMajAxis = obj.a;
+	const meanAnom = obj.ma;
+
+	const trajectory = new Trajectory(name, semiMajAxis, orbInc, argPeri, eccentricity, ascNode, meanAnom, periodYr);
+	const cometsCO = new CelestialObject(trajectory, bodies, scene, 0.1, cometTexture);
+}
 
 
 const mercuryTrajectory = new Trajectory("Mercury",0.72333199,3.39471,54.9,0.00677323,76.7,181.98,0.615);
