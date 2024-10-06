@@ -1,0 +1,92 @@
+{
+    "Sun": {
+        "distance": "0",
+        "mass": "1.989 x 10^30 kg (333,000 Earths)",
+        "diameter": "1,392,700 km (~865,000 miles)",
+        "gravity": "274 m/s² (28 times Earth's gravity)",
+        "temperature": "Surface - 5,500°C (10,000°F)\nCore: 15,000,000°C (27,000,000°F)",
+        "info1": "The Sun is the star at the center of our solar system. It is a nearly perfect sphere of hot plasma, with internal convective motion that generates a magnetic field via a dynamo process.",
+        "info2": "The Sun is by far the most important source of energy for life on Earth. The Sun accounts for about 99.86% of the total mass of the Solar System."
+    },
+    
+    "Mercury": {
+        "distance": "57,910,000 km (36,000,000 miles)",
+        "mass": "3.285 x 10^23 kg (0.055 Earths)",
+        "diameter": "4,880 km (3,032 miles)",
+        "gravity": "3.7 m/s² (0.38 times Earth's gravity)",
+        "temperature": "Day: 430°C (800°F)\nNight: -180°C (-290°F)",
+        "info1": "Mercury is the smallest planet in the Solar System and the closest to the Sun. It is named after the Roman deity Mercury, the messenger of the gods.",
+        "info2": "Mercury is one of four terrestrial planets in the Solar System, and is a rocky body like Earth."
+    },
+
+    "Venus": {
+        "distance": "108,200,000 km (67,200,000 miles)",
+        "mass": "4.867 x 10^24 kg (0.815 Earths)",
+        "diameter": "12,104 km (7,521 miles)",
+        "gravity": "8.87 m/s² (0.90 times Earth's gravity)",
+        "temperature": "462°C (864°F)",
+        "info1": "Venus is the second planet from the Sun. It is named after the Roman goddess of love and beauty.",
+        "info2": "Venus is the second-brightest natural object in the night sky after the Moon, reaching an apparent magnitude of −4.6 – bright enough to cast shadows at night and, rarely, visible to the naked eye in broad daylight."
+    },
+
+    "Earth": {
+        "distance": "149,600,000 km (93,000,000 miles)",
+        "mass": "5.972 x 10^24 kg",
+        "diameter": "12,742 km (7,918 miles)",
+        "gravity": "9.81 m/s²",
+        "temperature": "Average: 15°C (59°F)",
+        "info1": "Earth is the third planet from the Sun and the only astronomical object known to harbor life.",
+        "info2": "Earth's atmosphere consists of 78% nitrogen, 21% oxygen, 0.9% argon, 0.04% carbon dioxide, and trace amounts of other gases."
+    },
+
+    "Mars": {
+        "distance": "227,900,000 km (142,000,000 miles)",
+        "mass": "6.39 x 10^23 kg (0.107 Earths)",
+        "diameter": "6,779 km (4,212 miles)",
+        "gravity": "3.71 m/s² (0.38 times Earth's gravity)",
+        "temperature": "Average: -63°C (-81°F)",
+        "info1": "Mars is the fourth planet from the Sun and the second-smallest planet in the Solar System, being larger than only Mercury.",
+        "info2": "Mars is a terrestrial planet with a thin atmosphere, having surface features reminiscent both of the impact craters of the Moon and the valleys, deserts, and polar ice caps of Earth."
+    },
+
+    "Jupiter": {
+        "distance": "778,500,000 km (484,000,000 miles)",
+        "mass": "1.898 x 10^27 kg (318 Earths)",
+        "diameter": "139,822 km (86,881 miles)",
+        "gravity": "24.79 m/s² (2.53 times Earth's gravity)",
+        "temperature": "-145°C (-234°F)",
+        "info1": "Jupiter is the fifth planet from the Sun and the largest in the Solar System. It is a gas giant with a mass one-thousandth that of the Sun, but two-and-a-half times that of all the other planets in the Solar System combined.",
+        "info2": "Jupiter is primarily composed of hydrogen with a quarter of its mass being helium, though helium comprises only about a tenth of the number of molecules."
+    },
+
+    "Saturn": {
+        "distance": "1,433,000,000 km (889,000,000 miles)",
+        "mass": "5.683 x 10^26 kg (95 Earths)",
+        "diameter": "116,464 km (72,367 miles)",
+        "gravity": "10.44 m/s² (1.07 times Earth's gravity)",
+        "temperature": "-178°C (-288°F)",
+        "info1": "Saturn is the sixth planet from the Sun and the second-largest in the Solar System, after Jupiter.",
+        "info2": "Saturn is a gas giant with an average radius about nine times that of Earth."
+    },
+
+    "Uranus": {
+        "distance": "2,877,000,000 km (1,789,000,000 miles)",
+        "mass": "8.681 x 10^25 kg (15 Earths)",
+        "diameter": "50,724 km (31,518 miles)",
+        "gravity": "8.69 m/s² (0.89 times Earth's gravity)",
+        "temperature": "-216°C (-357°F)",
+        "info1": "Uranus is the seventh planet from the Sun. It has the third-largest planetary radius and fourth-largest planetary mass in the Solar System.",
+        "info2": "Uranus is similar in composition to Neptune, and both have bulk chemical compositions which differ from that of the larger gas giants Jupiter and Saturn."
+    },
+
+    "Neptune": {
+        "distance": "4,503,000,000 km (2,798,000,000 miles)",
+        "mass": "1.024 x 10^26 kg (17 Earths)",
+        "diameter": "49,244 km (30,598 miles)",
+        "gravity": "11.15 m/s² (1.14 times Earth's gravity)",
+        "temperature": "-201°C (-330°F)",
+        "info1": "Neptune is the eighth and farthest known planet from the Sun in the Solar System.",
+        "info2": "Neptune is similar in composition to Uranus, and both have compositions which differ from those of the larger gas giants, Jupiter and Saturn."
+    }
+
+}
